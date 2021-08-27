@@ -7,6 +7,7 @@ class SongsHandler {
 
     this.addSongHandler = this.addSongHandler.bind(this)
     this.getSongsHandler = this.getSongsHandler.bind(this)
+    this.getSongByIdHandler = this.getSongByIdHandler.bind(this)
   }
 
   async addSongHandler (request, h) {
@@ -51,6 +52,36 @@ class SongsHandler {
       data: {
         songs
       }
+    }
+  }
+
+  async getSongByIdHandler (request, h) {
+    try {
+      const { songId } = request.params
+      const song = await this._service.getSongById(songId)
+
+      return {
+        status: 'success',
+        data: {
+          song
+        }
+      }
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message
+        })
+        response.code(error.statusCode)
+        return response
+      }
+      const response = h.response({
+        status: 'error',
+        message: 'Sorry, there is a failure on our server.'
+      })
+      response.code(500)
+      console.error(error)
+      return response
     }
   }
 }
