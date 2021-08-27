@@ -9,6 +9,7 @@ class SongsHandler {
     this.getSongsHandler = this.getSongsHandler.bind(this)
     this.getSongByIdHandler = this.getSongByIdHandler.bind(this)
     this.editSongByIdHandler = this.editSongByIdHandler.bind(this)
+    this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this)
   }
 
   async addSongHandler (request, h) {
@@ -96,6 +97,33 @@ class SongsHandler {
       return {
         status: 'success',
         message: 'Song is sucessfully updated.'
+      }
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message
+        })
+        response.code(error.statusCode)
+        return response
+      }
+      const response = h.response({
+        status: 'error',
+        message: 'Sorry, there is a failure on our server.'
+      })
+      response.code(500)
+      console.error(error)
+      return response
+    }
+  }
+
+  async deleteSongByIdHandler (request, h) {
+    try {
+      const { songId } = request.params
+      await this._service.deleteSongById(songId)
+      return {
+        status: 'success',
+        message: 'Song is successfully deleted.'
       }
     } catch (error) {
       if (error instanceof ClientError) {
