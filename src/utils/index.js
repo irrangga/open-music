@@ -11,7 +11,10 @@ const mapDBToModel = ({
   updated_at,
   name,
   username,
-  owner
+  owner,
+  playlist_id,
+  song_id,
+  user_id
 }) => ({
   id,
   title,
@@ -23,7 +26,10 @@ const mapDBToModel = ({
   updatedAt: updated_at,
   name,
   username,
-  owner
+  owner,
+  playlistId: playlist_id,
+  songId: song_id,
+  userId: user_id
 })
 
 module.exports = { mapDBToModel }

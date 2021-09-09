@@ -1,29 +1,29 @@
 const ClientError = require('../../exceptions/ClientError')
 
-class CollaborationsHandler {
-  constructor (collaborationsService, playlistsService, validator) {
-    this._collaborationsService = collaborationsService
+class PlaylistsongsHandler {
+  constructor (playlistsongsService, playlistsService, validator) {
+    this._playlistsongsService = playlistsongsService
     this._playlistsService = playlistsService
     this._validator = validator
 
-    this.addCollaborationHandler = this.addCollaborationHandler.bind(this)
-    this.deleteCollaborationHandler = this.deleteCollaborationHandler.bind(this)
+    this.addPlaylistsongHandler = this.addPlaylistsongHandler.bind(this)
+    this.deletePlaylistsongHandler = this.deletePlaylistsongHandler.bind(this)
   }
 
-  async addCollaborationHandler (request, h) {
+  async addPlaylistsongHandler (request, h) {
     try {
-      this._validator.validateCollaborationPayload(request.payload)
+      this._validator.validatePlaylistsongPayload(request.payload)
       const { id: credentialId } = request.auth.credentials
-      const { playlistId, userId } = request.payload
+      const { playlistId, songId } = request.payload
 
-      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId)
-      const collaborationId = await this._collaborationsService.addCollaboration(playlistId, userId)
+      await this._playlistsService.verifyPlaylistsongAccess(playlistId, credentialId)
+      const playlistsongId = await this._playlistsongsService.addPlaylistsong(playlistId, songId)
 
       const response = h.response({
         status: 'success',
-        message: 'Collaboration successfully added.',
+        message: 'Song successfully added to playlists.',
         data: {
-          collaborationId
+          playlistsongId
         }
       })
       response.code(201)
@@ -49,18 +49,18 @@ class CollaborationsHandler {
     }
   }
 
-  async deleteCollaborationHandler (request, h) {
+  async deletePlaylistsongHandler (request, h) {
     try {
-      this._validator.validateCollaborationPayload(request.payload)
+      this._validator.validatePlaylistsongPayload(request.payload)
       const { id: credentialId } = request.auth.credentials
-      const { playlistId, userId } = request.payload
+      const { playlistId, songId } = request.payload
 
-      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId)
-      await this._collaborationsService.deleteCollaboration(playlistId, userId)
+      await this._playlistsService.verifyPlaylistsongAccess(playlistId, credentialId)
+      await this._playlistsongsService.deletePlaylistsong(playlistId, songId)
 
       return {
         status: 'success',
-        message: 'Collaboration successfully deleted.'
+        message: 'Playlistsong successfully deleted.'
       }
     } catch (error) {
       if (error instanceof ClientError) {
@@ -84,4 +84,4 @@ class CollaborationsHandler {
   }
 }
 
-module.exports = CollaborationsHandler
+module.exports = PlaylistsongsHandler
