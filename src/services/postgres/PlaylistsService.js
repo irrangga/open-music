@@ -5,9 +5,10 @@ const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
 const { mapDBToModel } = require('../../utils')
 
-class SongsService {
-  constructor () {
+class PlaylistsService {
+  constructor (collaborationService) {
     this._pool = new Pool()
+    this._collaborationService = collaborationService
   }
 
   async addPlaylist ({ name, owner }) {
@@ -29,7 +30,7 @@ class SongsService {
 
   async getPlaylists (owner) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE owner = $1',
+      text: 'SELECT playlists.id, playlists.name, users.username FROM playlists INNER JOIN users ON playlists.owner = users.id WHERE owner = $1',
       values: [owner]
     }
     const result = await this._pool.query(query)
@@ -50,6 +51,21 @@ class SongsService {
       throw new AuthorizationError('You are not authorized to access this resource.')
     }
   }
+
+  async verifyPlaylistAccess (playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId)
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error
+      }
+      try {
+        await this._collaborationService.verifyCollaborator(playlistId, userId)
+      } catch {
+        throw error
+      }
+    }
+  }
 }
 
-module.exports = SongsService
+module.exports = PlaylistsService
