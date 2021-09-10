@@ -9,7 +9,7 @@ class PlaylistsHandler {
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this)
     // this.getSongByIdHandler = this.getSongByIdHandler.bind(this)
     // this.editSongByIdHandler = this.editSongByIdHandler.bind(this)
-    // this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this)
+    this.deletePlaylistByIdHandler = this.deletePlaylistByIdHandler.bind(this)
   }
 
   async addPlaylistHandler (request, h) {
@@ -138,32 +138,35 @@ class PlaylistsHandler {
   //   }
   // }
 
-  // async deleteSongByIdHandler (request, h) {
-  //   try {
-  //     const { playlistId } = request.params
-  //     await this._service.deleteSongById(playlistId)
-  //     return {
-  //       status: 'success',
-  //       message: 'Playlist is successfully deleted.'
-  //     }
-  //   } catch (error) {
-  //     if (error instanceof ClientError) {
-  //       const response = h.response({
-  //         status: 'fail',
-  //         message: error.message
-  //       })
-  //       response.code(error.statusCode)
-  //       return response
-  //     }
-  //     const response = h.response({
-  //       status: 'error',
-  //       message: 'Sorry, there is a failure on our server.'
-  //     })
-  //     response.code(500)
-  //     console.error(error)
-  //     return response
-  //   }
-  // }
+  async deletePlaylistByIdHandler (request, h) {
+    try {
+      const { playlistId } = request.params
+      const { id: credentialId } = request.auth.credentials
+
+      await this._service.verifyPlaylistOwner(playlistId, credentialId)
+      await this._service.deletePlaylistById(playlistId)
+      return {
+        status: 'success',
+        message: 'Playlist is successfully deleted.'
+      }
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message
+        })
+        response.code(error.statusCode)
+        return response
+      }
+      const response = h.response({
+        status: 'error',
+        message: 'Sorry, there is a failure on our server.'
+      })
+      response.code(500)
+      console.error(error)
+      return response
+    }
+  }
 }
 
 module.exports = PlaylistsHandler

@@ -1,6 +1,7 @@
 const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/InvariantError')
+const { mapDBToModel } = require('../../utils')
 
 class PlaylistsongsService {
   constructor () {
@@ -21,9 +22,18 @@ class PlaylistsongsService {
     return result.rows[0].id
   }
 
+  async getPlaylistsong (playlistId) {
+    const query = {
+      text: 'SELECT songs.id, songs.title, songs.performer FROM songs INNER JOIN playlistsongs ON songs.id = playlistsongs.song_id WHERE playlist_id = $1 ',
+      values: [playlistId]
+    }
+    const result = await this._pool.query(query)
+    return result.rows.map(mapDBToModel)
+  }
+
   async deletePlaylistsong (playlistId, songId) {
     const query = {
-      text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
+      text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
       values: [playlistId, songId]
     }
     const result = await this._pool.query(query)
@@ -35,7 +45,7 @@ class PlaylistsongsService {
 
   async verifyPlaylistsong (playlistId, songId) {
     const query = {
-      text: 'SELECT * FROM playlistsongs WHERE playlist_id = $1 AND user_id = $2',
+      text: 'SELECT * FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2',
       values: [playlistId, songId]
     }
 

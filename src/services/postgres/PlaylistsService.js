@@ -38,6 +38,19 @@ class PlaylistsService {
     return result.rows.map(mapDBToModel)
   }
 
+  async deletePlaylistById (id) {
+    const query = {
+      text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
+      values: [id]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist is failed to delete.')
+    }
+  }
+
   async verifyPlaylistOwner (id, owner) {
     const query = {
       text: 'SELECT * FROM playlists WHERE id = $1',
@@ -47,8 +60,8 @@ class PlaylistsService {
     if (!result.rows.length) {
       throw new NotFoundError('Playlist not found.')
     }
-    const note = result.rows[0]
-    if (note.owner !== owner) {
+    const playlist = result.rows[0]
+    if (playlist.owner !== owner) {
       throw new AuthorizationError('You are not authorized to access this resource.')
     }
   }
