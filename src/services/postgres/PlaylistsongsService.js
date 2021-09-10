@@ -17,7 +17,7 @@ class PlaylistsongsService {
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {
-      throw new InvariantError('Playlistsong failed to add.')
+      throw new InvariantError('Song failed to add to playlist.')
     }
     return result.rows[0].id
   }

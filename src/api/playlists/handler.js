@@ -7,8 +7,6 @@ class PlaylistsHandler {
 
     this.addPlaylistHandler = this.addPlaylistHandler.bind(this)
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this)
-    // this.getSongByIdHandler = this.getSongByIdHandler.bind(this)
-    // this.editSongByIdHandler = this.editSongByIdHandler.bind(this)
     this.deletePlaylistByIdHandler = this.deletePlaylistByIdHandler.bind(this)
   }
 
@@ -77,66 +75,6 @@ class PlaylistsHandler {
       return response
     }
   }
-
-  // async getSongByIdHandler (request, h) {
-  //   try {
-  //     const { playlistId } = request.params
-  //     const song = await this._service.getSongById(playlistId)
-
-  //     return {
-  //       status: 'success',
-  //       data: {
-  //         song
-  //       }
-  //     }
-  //   } catch (error) {
-  //     if (error instanceof ClientError) {
-  //       const response = h.response({
-  //         status: 'fail',
-  //         message: error.message
-  //       })
-  //       response.code(error.statusCode)
-  //       return response
-  //     }
-  //     const response = h.response({
-  //       status: 'error',
-  //       message: 'Sorry, there is a failure on our server.'
-  //     })
-  //     response.code(500)
-  //     console.error(error)
-  //     return response
-  //   }
-  // }
-
-  // async editSongByIdHandler (request, h) {
-  //   try {
-  //     this._validator.validateSongPayload(request.payload)
-  //     const { playlistId } = request.params
-
-  //     await this._service.editSongById(playlistId, request.payload)
-
-  //     return {
-  //       status: 'success',
-  //       message: 'Playlist is sucessfully updated.'
-  //     }
-  //   } catch (error) {
-  //     if (error instanceof ClientError) {
-  //       const response = h.response({
-  //         status: 'fail',
-  //         message: error.message
-  //       })
-  //       response.code(error.statusCode)
-  //       return response
-  //     }
-  //     const response = h.response({
-  //       status: 'error',
-  //       message: 'Sorry, there is a failure on our server.'
-  //     })
-  //     response.code(500)
-  //     console.error(error)
-  //     return response
-  //   }
-  // }
 
   async deletePlaylistByIdHandler (request, h) {
     try {

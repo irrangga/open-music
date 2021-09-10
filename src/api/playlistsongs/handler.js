@@ -23,7 +23,7 @@ class PlaylistsongsHandler {
       this._validator.validatePlaylistsongPayload(request.payload)
       const { songId } = request.payload
 
-      await this._playlistsService.verifyPlaylistsongAccess(playlistId, credentialId)
+      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId)
       const playlistsongId = await this._playlistsongsService.addPlaylistsong(playlistId, songId)
 
       const response = h.response({
@@ -64,7 +64,7 @@ class PlaylistsongsHandler {
         throw new NotFoundError('Resource not found')
       }
 
-      await this._playlistsService.verifyPlaylistsongAccess(playlistId, credentialId)
+      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId)
       const songs = await this._playlistsongsService.getPlaylistsong(playlistId)
 
       return {
@@ -103,7 +103,7 @@ class PlaylistsongsHandler {
       this._validator.validatePlaylistsongPayload(request.payload)
       const { songId } = request.payload
 
-      await this._playlistsService.verifyPlaylistsongAccess(playlistId, credentialId)
+      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId)
       await this._playlistsongsService.deletePlaylistsong(playlistId, songId)
 
       return {
