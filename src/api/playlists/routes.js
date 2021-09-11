@@ -15,16 +15,6 @@ const routes = (handler) => [
       auth: 'openmusic_jwt'
     }
   },
-  // {
-  //   method: 'GET',
-  //   path: '/songs/{songId}',
-  //   handler: handler.getSongByIdHandler
-  // },
-  // {
-  //   method: 'PUT',
-  //   path: '/songs/{songId}',
-  //   handler: handler.editSongByIdHandler
-  // },
   {
     method: 'DELETE',
     path: '/playlists/{playlistId}',

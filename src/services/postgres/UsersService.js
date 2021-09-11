@@ -22,7 +22,7 @@ class UsersService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Failed to add user.')
     }
     return result.rows[0].id
@@ -36,7 +36,7 @@ class UsersService {
 
     const result = await this._pool.query(query)
 
-    if (result.rows.length > 0) {
+    if (result.rowCount > 0) {
       throw new InvariantError('Failed to add user. Username already exist.')
     }
   }
@@ -49,7 +49,7 @@ class UsersService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('User cannot be found.')
     }
     return result.rows[0]
@@ -62,7 +62,7 @@ class UsersService {
     }
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new AuthenticationError('Credential you provided is wrong.')
     }
     const { id, password: hashedPassword } = result.rows[0]
