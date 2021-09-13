@@ -4,8 +4,9 @@ const InvariantError = require('../../exceptions/InvariantError')
 const { mapDBToModel } = require('../../utils')
 
 class PlaylistsongsService {
-  constructor () {
+  constructor (cacheService) {
     this._pool = new Pool()
+    this._cacheService = cacheService
   }
 
   async addPlaylistsong (playlistId, songId) {
@@ -19,16 +20,26 @@ class PlaylistsongsService {
     if (!result.rowCount) {
       throw new InvariantError('Song failed to add to playlist.')
     }
+    await this._cacheService.delete(`playlists:${playlistId}`)
     return result.rows[0].id
   }
 
   async getPlaylistsong (playlistId) {
-    const query = {
-      text: 'SELECT songs.id, songs.title, songs.performer FROM songs INNER JOIN playlistsongs ON songs.id = playlistsongs.song_id WHERE playlist_id = $1 ',
-      values: [playlistId]
+    try {
+      const result = await this._cacheService.get(`playlists:${playlistId}`)
+      return JSON.parse(result)
+    } catch (error) {
+      const query = {
+        text: 'SELECT songs.id, songs.title, songs.performer FROM songs INNER JOIN playlistsongs ON songs.id = playlistsongs.song_id WHERE playlist_id = $1 ',
+        values: [playlistId]
+      }
+      const result = await this._pool.query(query)
+      const mappedResult = result.rows.map(mapDBToModel)
+
+      await this._cacheService.set(`songs:${playlistId}`, JSON.stringify(mappedResult))
+
+      return mappedResult
     }
-    const result = await this._pool.query(query)
-    return result.rows.map(mapDBToModel)
   }
 
   async deletePlaylistsong (playlistId, songId) {
@@ -41,6 +52,8 @@ class PlaylistsongsService {
     if (!result.rowCount) {
       throw new InvariantError('Playlistsong failed to delete.')
     }
+
+    await this._cacheService.delete(`playlists:${playlistId}`)
   }
 
   async verifyPlaylistsong (playlistId, songId) {
