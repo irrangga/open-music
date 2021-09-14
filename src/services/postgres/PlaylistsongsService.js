@@ -36,7 +36,7 @@ class PlaylistsongsService {
       const result = await this._pool.query(query)
       const mappedResult = result.rows.map(mapDBToModel)
 
-      await this._cacheService.set(`songs:${playlistId}`, JSON.stringify(mappedResult))
+      await this._cacheService.set(`playlists:${playlistId}`, JSON.stringify(mappedResult))
 
       return mappedResult
     }

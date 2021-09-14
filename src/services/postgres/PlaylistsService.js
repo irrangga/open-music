@@ -6,9 +6,10 @@ const NotFoundError = require('../../exceptions/NotFoundError')
 const { mapDBToModel } = require('../../utils')
 
 class PlaylistsService {
-  constructor (collaborationService) {
+  constructor (collaborationService, cacheService) {
     this._pool = new Pool()
     this._collaborationService = collaborationService
+    this._cacheService = cacheService
   }
 
   async addPlaylist ({ name, owner }) {
@@ -25,19 +26,29 @@ class PlaylistsService {
       throw new InvariantError('Playlist is failed to add.')
     }
 
+    await this._cacheService.delete(`playlists:${owner}`)
     return result.rows[0].id
   }
 
   async getPlaylists (owner) {
-    const query = {
-      text: `SELECT playlists.id, playlists.name, users.username FROM playlists 
-      LEFT JOIN users ON playlists.owner = users.id 
-      LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
-      WHERE owner = $1 OR collaborations.user_id = $1`,
-      values: [owner]
+    try {
+      const result = await this._cacheService.get(`playlists:${owner}`)
+      return JSON.parse(result)
+    } catch (error) {
+      const query = {
+        text: `SELECT playlists.id, playlists.name, users.username FROM playlists 
+        LEFT JOIN users ON playlists.owner = users.id 
+        LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
+        WHERE owner = $1 OR collaborations.user_id = $1`,
+        values: [owner]
+      }
+
+      const result = await this._pool.query(query)
+      const mappedResult = result.rows.map(mapDBToModel)
+
+      await this._cacheService.set(`playlists:${owner}`, JSON.stringify(mappedResult))
+      return mappedResult
     }
-    const result = await this._pool.query(query)
-    return result.rows.map(mapDBToModel)
   }
 
   async deletePlaylistById (id) {
@@ -51,6 +62,9 @@ class PlaylistsService {
     if (!result.rowCount) {
       throw new NotFoundError('Playlist is failed to delete.')
     }
+
+    const { owner } = result.rows[0]
+    await this._cacheService.delete(`playlists:${owner}`)
   }
 
   async verifyPlaylistOwner (id, owner) {
