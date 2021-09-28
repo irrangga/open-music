@@ -55,19 +55,6 @@ class PlaylistsongsService {
 
     await this._cacheService.delete(`playlists:${playlistId}`)
   }
-
-  async verifyPlaylistsong (playlistId, songId) {
-    const query = {
-      text: 'SELECT * FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2',
-      values: [playlistId, songId]
-    }
-
-    const result = await this._pool.query(query)
-
-    if (!result.rowCount) {
-      throw new InvariantError('Playlistsong failed to verify.')
-    }
-  }
 }
 
 module.exports = PlaylistsongsService
