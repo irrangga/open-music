@@ -36,7 +36,7 @@ class PlaylistsongsService {
       const result = await this._pool.query(query)
       const mappedResult = result.rows.map(mapDBToModel)
 
-      await this._cacheService.set(`songs:${playlistId}`, JSON.stringify(mappedResult))
+      await this._cacheService.set(`playlists:${playlistId}`, JSON.stringify(mappedResult))
 
       return mappedResult
     }
@@ -54,19 +54,6 @@ class PlaylistsongsService {
     }
 
     await this._cacheService.delete(`playlists:${playlistId}`)
-  }
-
-  async verifyPlaylistsong (playlistId, songId) {
-    const query = {
-      text: 'SELECT * FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2',
-      values: [playlistId, songId]
-    }
-
-    const result = await this._pool.query(query)
-
-    if (!result.rowCount) {
-      throw new InvariantError('Playlistsong failed to verify.')
-    }
   }
 }
 
